@@ -998,37 +998,6 @@
             <img class="signup-avatar" id="editAvatarPreview" src="${p.avatar}" alt="Avatar" title="اضغط لتغيير الصورة" />
           </label>
           <p class="avatar-note">اضغط على الصورة لرفع صورة من جهازك</p>
-          <input type="file" id="avatarUpload" accept="image/*" style="display:none;">
-          <input type="hidden" name="avatar" value="${p.avatar}">
-          <button type="button" class="settings-btn-themed" id="randomAvatarBtn" style="margin-top: 8px;">صورة رمزية عشوائية</button>
-        </div>
-
-        <div class="auth-input-group" style="width:100%;"><label for="nameInput">اسمك في الشات</label><input type="text" id="nameInput" name="name" class="auth-input" value="${p.name}" placeholder="اكتب اسمك هنا..." /></div>
-        <div class="auth-input-group" style="width:100%;"><label for="locationInput">العنوان</label><input type="text" id="locationInput" name="location" class="auth-input" value="${p.location || ''}" placeholder="مثال: القاهرة، مصر" /></div>
-        <div class="gender-select"><div class="gender-option ${p.gender === 'male' ? 'selected' : ''}" data-gender="male">ذكـر</div><div class="gender-option ${p.gender === 'female' ? 'selected' : ''}" data-gender="female">أنثـى</div></div>
-        <p class="error-message" id="setupError"></p>
-        <div class="form-btn-group"><button type="submit" class="form-btn-confirm">${buttonText}</button></div>
-      </form></div>`;
-      
-      contentEl.appendChild(formContainer);
-      const form = document.getElementById('profileForm');
-      attachProfileFormListeners(form, false); 
-      form.addEventListener('submit', (e) => handleProfileSave(e, user, false));
-    };
-    
-    function renderEditProfilePage() {
-        if (!pageCache.edit_profile || !currentUserProfile) return;
-        const p = currentUserProfile;
-        const title = 'تعديل الملف الشخصي';
-        const buttonText = 'حفظ التعديلات';
-
-        pageCache.edit_profile.innerHTML = `<div class="auth-page"><h1 class="auth-title">${title}</h1><form class="auth-card" id="editProfileForm">
-        
-        <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
-          <label for="editAvatarUpload">
-            <img class="signup-avatar" id="editAvatarPreview" src="${p.avatar}" alt="Avatar" title="اضغط لتغيير الصورة" />
-          </label>
-          <p class="avatar-note">اضغط على الصورة لرفع صورة من جهازك</p>
           <input type="file" id="editAvatarUpload" accept="image/*" style="display:none;">
           <input type="hidden" name="avatar" value="${p.avatar}">
           <button type="button" class="settings-btn-themed" id="editRandomAvatarBtn" style="margin-top: 8px;">صورة رمزية عشوائية</button>
@@ -1367,3 +1336,5 @@
   </script>
 </body>
 </html>
+
+
