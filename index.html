@@ -92,6 +92,9 @@
     .messages {
       flex: 1; padding: 12px 8px; overflow-y: auto; display: flex; flex-direction: column;
       gap: 1px; background-color: transparent;
+      
+      /* --- إصلاح 2: هذا السطر يعكس اتجاه الشات --- */
+      margin-top: auto;
     }
     .load-more-container {
         display: flex;
@@ -211,7 +214,6 @@
     .form-btn-cancel { padding: 10px; border: none; border-radius: 20px; color: var(--primary-dark); background: #eee; cursor: pointer; }
     .form-btn-group { display: flex; gap: 10px; margin-top: 10px; }
     
-    /* --- إصلاح 1: العودة لنظام الزر العشوائي --- */
     .signup-avatar { 
         width: 80px; height: 80px; border-radius: 50%; 
         object-fit: cover; border: 2px solid var(--primary-dark); 
@@ -295,23 +297,6 @@
     .modal-body { margin-bottom: 20px; color: var(--text-dark); }
     .modal-buttons { display: flex; gap: 10px; justify-content: center; }
     
-    .delete-msg-btn {
-        position: absolute; top: -5px; left: -10px;
-        background-color: var(--danger-color); color: white; border: none;
-        border-radius: 50%; width: 22px; height: 22px; font-size: 12px;
-        cursor: pointer; display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.3); opacity: 0; transition: opacity 0.2s;
-        z-index: 1;
-    }
-    .message-row.sent .delete-msg-btn { left: auto; right: -10px; }
-    .delete-member-btn {
-        background: var(--danger-color); color: white; border: none;
-        border-radius: 8px; width: 30px; height: 30px; font-size: 16px;
-        cursor: pointer; display: flex; align-items: center; justify-content: center;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.2); margin-left: 8px;
-    }
-
-
     /* --- Responsive Design --- */
     @media screen and (min-width: 600px) {
         body {
@@ -338,9 +323,6 @@
             }
             .member-item-wrapper:hover {
                 transform: scale(1.02);
-            }
-            .message-row:hover .delete-msg-btn {
-                opacity: 1;
             }
         }
     }
@@ -374,6 +356,20 @@
             <div class="modal-buttons">
                 <button id="confirmModalCancel" class="form-btn-cancel">إلغاء</button>
                 <button id="confirmModalOk" class="form-btn-confirm">تأكيد</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="memberActionModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 id="memberActionTitle" class="modal-title"></h3>
+            <div class="modal-buttons" style="flex-direction: column; gap: 10px;">
+                <!-- --- إصلاح 1: إضافة زر عرض الملف الشخصي --- -->
+                <button id="memberActionViewProfile" class="settings-btn-themed" style="background: var(--primary-dark);">👤 عرض الملف الشخصي</button>
+                <button id="memberActionMute" class="settings-btn-themed">🔇 تقييد الإرسال</button>
+                <button id="memberActionUnmute" class="settings-btn-themed" style="background: var(--accent-color);">🔊 إلغاء التقييد</button>
+                <button id="memberActionDelete" class="settings-btn-themed" style="background: var(--danger-color);">🗑️ حذف العضو</button>
+                <button id="memberActionCancel" class="form-btn-cancel">إلغاء</button>
             </div>
         </div>
     </div>
@@ -418,10 +414,17 @@
     const navEl = document.getElementById("chatNav");
     const loadingScreen = document.getElementById("loadingScreen");
     const logoutBtn = document.getElementById('logoutBtn');
+    const memberActionModal = document.getElementById('memberActionModal');
+    const memberActionTitle = document.getElementById('memberActionTitle');
+    // --- إصلاح 1: جلب الزر الجديد ---
+    const memberActionViewProfile = document.getElementById('memberActionViewProfile');
+    const memberActionMute = document.getElementById('memberActionMute');
+    const memberActionUnmute = document.getElementById('memberActionUnmute');
+    const memberActionDelete = document.getElementById('memberActionDelete');
+    const memberActionCancel = document.getElementById('memberActionCancel');
 
 
     // --- Static Assets & Default Configs ---
-    // --- إصلاح 1: زيادة عدد الصور الرمزية للزر العشوائي ---
     const maleAvatars = [
       "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=100&h=100&fit=crop",
       "https://images.pexels.com/photos/91227/pexels-photo-91227.jpeg?auto=compress&cs=tinysrgb&dpr=1&w=100&h=100&fit=crop",
@@ -442,7 +445,6 @@
       "https://images.pexels.com/photos/1181686/pexels-photo-1181686.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop",
       "https://images.pexels.com/photos/415829/pexels-photo-415829.jpeg?auto=compress&cs=tinysrgb&w=100&h=100&fit=crop",
     ];
-    // --- إصلاح 5: زيادة عدد الخلفيات ---
     const backgroundImages = [
         { thumb: 'https://images.pexels.com/photos/15286/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=150', full: 'https://images.pexels.com/photos/15286/pexels-photo.jpg?auto=compress&cs=tinysrgb&w=600' },
         { thumb: 'https://images.pexels.com/photos/3408744/pexels-photo-3408744.jpeg?auto=compress&cs=tinysrgb&w=150', full: 'https://images.pexels.com/photos/3408744/pexels-photo-3408744.jpeg?auto=compress&cs=tinysrgb&w=600' },
@@ -554,9 +556,6 @@
         }
     };
 
-    /**
-     * --- إصلاح 2 & 3: إصلاح الوضع الداكن وحرية اختيار الخلفية ---
-     */
     const applyCombinedSettings = () => {
         if (!currentUserProfile) return;
         
@@ -565,13 +564,10 @@
 
         if (global) {
             const settingsToApply = { ...global };
-            // اسمح دائماً لإعدادات المستخدم الشخصية (الوضع الداكن والخلفية)
-            // أن تتفوق على إعدادات المالك.
             settingsToApply.darkMode = userSettings.darkMode;
             settingsToApply.chatBackground = userSettings.chatBackground;
             applyUserSettings(settingsToApply);
         } else {
-            // لا توجد إعدادات عامة، فقط طبق إعدادات المستخدم الشخصية
             applyUserSettings(userSettings);
         }
     };
@@ -688,11 +684,15 @@
             }
         });
 
+        let isInitialMessagesLoad = true;
         const messagesQuery = query(messagesCollection, orderBy("createdAt"), limitToLast(50));
         const unsubscribeMessages = onSnapshot(messagesQuery, (snapshot) => {
             const messagesEl = pageCache.chat.querySelector('.messages');
+            if (!messagesEl) return; 
+
             const welcome = messagesEl.querySelector('.welcome-message');
-            
+            const isScrolledUp = messagesEl.scrollHeight - messagesEl.clientHeight > messagesEl.scrollTop + 150;
+
             if (!snapshot.empty && !messagesEl.querySelector('.load-more-btn')) {
                  const loadMoreContainer = document.createElement('div');
                  loadMoreContainer.className = 'load-more-container';
@@ -700,9 +700,7 @@
                  messagesEl.prepend(loadMoreContainer);
                  setTimeout(() => {
                      const btn = messagesEl.querySelector('.load-more-btn');
-                     if(btn) {
-                         btn.textContent = 'لا توجد رسائل أقدم';
-                     }
+                     if(btn) btn.textContent = 'لا توجد رسائل أقدم';
                  }, 2000);
             }
 
@@ -711,24 +709,32 @@
             } else if (welcome) {
                 welcome.remove();
             }
-            
-            let shouldScroll = messagesEl.scrollHeight - messagesEl.clientHeight <= messagesEl.scrollTop + 150;
-            
+
+            let newMessagesAdded = false;
             snapshot.docChanges().forEach((change) => {
                 const msgData = { id: change.doc.id, ...change.doc.data() };
                 const msgEl = messagesEl.querySelector(`[data-msg-id="${msgData.id}"]`);
                 if (change.type === "added" && !msgEl) {
                     const newMsgEl = createMessageElement(msgData);
                     if (newMsgEl) {
-                        messagesEl.appendChild(newMsgEl);
+                        messagesEl.appendChild(newMsgEl); 
+                        newMessagesAdded = true;
                     }
                 }
                 if (change.type === "removed" && msgEl) msgEl.remove();
             });
 
-            if(shouldScroll) {
-                messagesEl.scrollTop = messagesEl.scrollHeight;
+            if (newMessagesAdded) {
+                if (isInitialMessagesLoad || !isScrolledUp) {
+                    messagesEl.scrollTop = messagesEl.scrollHeight;
+                }
             }
+            // --- إصلاح 2: تأكد من التمرير للأسفل حتى لو لا توجد رسائل جديدة (عند التحميل الأولي)
+            if (isInitialMessagesLoad) {
+                 messagesEl.scrollTop = messagesEl.scrollHeight;
+            }
+            isInitialMessagesLoad = false; 
+
         }, (error) => {
             console.error("Messages listener failed:", error);
             showToast("خطأ في تحديث الرسائل.");
@@ -832,12 +838,51 @@
         }
     }
 
+    function showMemberActionModal(user) {
+        memberActionTitle.textContent = user.name;
+        
+        memberActionMute.style.display = user.isMuted ? 'none' : 'block';
+        memberActionUnmute.style.display = user.isMuted ? 'block' : 'none';
+        
+        // --- إصلاح 1: ربط الزر الجديد ---
+        memberActionViewProfile.onclick = () => {
+            memberActionModal.classList.remove('active');
+            viewUserProfile(user.id);
+        };
+        
+        memberActionMute.onclick = () => handleSetMute(user.id, true);
+        memberActionUnmute.onclick = () => handleSetMute(user.id, false);
+        memberActionDelete.onclick = () => {
+            memberActionModal.classList.remove('active'); 
+            handleDeleteMember(user.id, user.name); 
+        };
+        memberActionCancel.onclick = () => memberActionModal.classList.remove('active');
+        
+        memberActionModal.classList.add('active');
+    }
+
+    async function handleSetMute(userId, isMuted) {
+        try {
+            await updateDoc(doc(usersCollection, userId), { isMuted: isMuted });
+            showToast(isMuted ? 'تم تقييد العضو بنجاح.' : 'تم إلغاء تقييد العضو.');
+            if(usersCache[userId]) {
+                usersCache[userId].isMuted = isMuted; 
+            }
+            renderMembersList(); 
+        } catch (error) {
+            console.error("Error setting mute state:", error);
+            showToast('حدث خطأ.');
+        } finally {
+            memberActionModal.classList.remove('active');
+        }
+    }
+
     function renderMembersList() {
         if (!pageCache.members) return;
         const membersListEl = pageCache.members.querySelector('#membersList');
         membersListEl.innerHTML = ''; 
         const fragment = document.createDocumentFragment();
-        const isOwner = currentUserProfile.badge === 'owner';
+        const isAdmin = currentUserProfile.badge === 'owner' || currentUserProfile.badge === 'moderator';
         
         Object.values(usersCache).sort((a, b) => a.name.localeCompare(b.name)).forEach(user => {
             const memberItemWrapper = document.createElement('div');
@@ -846,17 +891,19 @@
             
             const memberItem = document.createElement('div');
             memberItem.className = 'member-item';
-            memberItem.innerHTML = `<img class="member-avatar" src="${user.avatar}" alt="${user.name}" /><div class="member-info"><h3 class="member-name">${user.name}</h3></div>`;
-            memberItem.onclick = () => viewUserProfile(user.id);
+
+            const muteIcon = user.isMuted ? ' 🔇' : '';
+            memberItem.innerHTML = `<img class="member-avatar" src="${user.avatar}" alt="${user.name}" /><div class="member-info"><h3 class="member-name">${user.name}${muteIcon}</h3></div>`;
             
-            if (isOwner && user.id !== currentUserProfile.id) {
-                const deleteBtn = document.createElement('button');
-                deleteBtn.className = 'delete-member-btn';
-                deleteBtn.title = 'حذف العضو ورسائله';
-                deleteBtn.innerHTML = '🗑️';
-                deleteBtn.onclick = (e) => { e.stopPropagation(); handleDeleteMember(user.id, user.name); };
-                memberItem.prepend(deleteBtn);
+            // --- إصلاح 1: تعديل المنطق ---
+            // إذا كان أدمن *وليس* العضو نفسه، أظهر المودال
+            if (isAdmin && user.id !== currentUserProfile.id) {
+                memberItem.onclick = () => showMemberActionModal(user);
+            } else {
+                // إذا كان مستخدم عادي، أو أدمن يضغط على نفسه، أظهر البروفايل
+                memberItem.onclick = () => viewUserProfile(user.id);
             }
+            
             memberItemWrapper.appendChild(memberItem);
             fragment.appendChild(memberItemWrapper);
         });
@@ -913,7 +960,6 @@
       const p = { name: '', avatar: getRandomAvatar('male'), gender: 'male', location: '' };
       const formContainer = document.createElement('div');
       
-      // --- إصلاح 1: العودة لنظام الزر العشوائي ---
       formContainer.innerHTML = `<div class="auth-page"><h1 class="auth-title">${title}</h1><form class="auth-card" id="profileForm">
         
         <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
@@ -935,7 +981,7 @@
       
       contentEl.appendChild(formContainer);
       const form = document.getElementById('profileForm');
-      attachProfileFormListeners(form, false); // <-- false = ليس تعديل
+      attachProfileFormListeners(form, false); 
       form.addEventListener('submit', (e) => handleProfileSave(e, user, false));
     };
     
@@ -945,7 +991,37 @@
         const title = 'تعديل الملف الشخصي';
         const buttonText = 'حفظ التعديلات';
 
-        // --- إصلاح 1: العودة لنظام الزر العشوائي ---
+        pageCache.edit_profile.innerHTML = `<div class="auth-page"><h1 class="auth-title">${title}</h1><form class="auth-card" id="editProfileForm">
+        
+        <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
+          <label for="editAvatarUpload">
+            <img class="signup-avatar" id="editAvatarPreview" src="${p.avatar}" alt="Avatar" title="اضغط لتغيير الصورة" />
+          </label>
+          <p class="avatar-note">اضغط على الصورة لرفع صورة من جهازك</p>
+          <input type="file" id="avatarUpload" accept="image/*" style="display:none;">
+          <input type="hidden" name="avatar" value="${p.avatar}">
+          <button type="button" class="settings-btn-themed" id="randomAvatarBtn" style="margin-top: 8px;">صورة رمزية عشوائية</button>
+        </div>
+
+        <div class="auth-input-group" style="width:100%;"><label for="nameInput">اسمك في الشات</label><input type="text" id="nameInput" name="name" class="auth-input" value="${p.name}" placeholder="اكتب اسمك هنا..." /></div>
+        <div class="auth-input-group" style="width:100%;"><label for="locationInput">العنوان</label><input type="text" id="locationInput" name="location" class="auth-input" value="${p.location || ''}" placeholder="مثال: القاهرة، مصر" /></div>
+        <div class="gender-select"><div class="gender-option ${p.gender === 'male' ? 'selected' : ''}" data-gender="male">ذكـر</div><div class="gender-option ${p.gender === 'female' ? 'selected' : ''}" data-gender="female">أنثـى</div></div>
+        <p class="error-message" id="setupError"></p>
+        <div class="form-btn-group"><button type="submit" class="form-btn-confirm">${buttonText}</button></div>
+      </form></div>`;
+      
+      contentEl.appendChild(formContainer);
+      const form = document.getElementById('profileForm');
+      attachProfileFormListeners(form, false); 
+      form.addEventListener('submit', (e) => handleProfileSave(e, user, false));
+    };
+    
+    function renderEditProfilePage() {
+        if (!pageCache.edit_profile || !currentUserProfile) return;
+        const p = currentUserProfile;
+        const title = 'تعديل الملف الشخصي';
+        const buttonText = 'حفظ التعديلات';
+
         pageCache.edit_profile.innerHTML = `<div class="auth-page"><h1 class="auth-title">${title}</h1><form class="auth-card" id="editProfileForm">
         
         <div style="display:flex; flex-direction:column; align-items:center; gap:4px;">
@@ -967,13 +1043,10 @@
         
         const form = pageCache.edit_profile.querySelector('#editProfileForm');
         form.querySelector('.form-btn-cancel').onclick = () => openPage('profile');
-        attachProfileFormListeners(form, true); // <-- true = تعديل
+        attachProfileFormListeners(form, true); 
         form.addEventListener('submit', (e) => handleProfileSave(e, auth.currentUser, true));
     }
     
-    /**
-     * --- إصلاح 1: العودة لدالة الأفاتار القديمة (مع إصلاحات) ---
-     */
     function attachProfileFormListeners(form, isEditing = false) {
       const avatarUploadInput = form.querySelector(isEditing ? '#editAvatarUpload' : '#avatarUpload');
       const avatarPreview = form.querySelector(isEditing ? '#editAvatarPreview' : '#avatarPreview');
@@ -984,7 +1057,7 @@
           const file = event.target.files[0];
           if (!file) return;
 
-           showLoading(true);
+          showLoading(true);
           try {
               const compressedBase64 = await compressImage(file, 800, 0.7); 
 
@@ -997,7 +1070,7 @@
               
               avatarPreview.src = compressedBase64;
               avatarHiddenInput.value = compressedBase64;
-              randomAvatarBtn.style.display = 'none'; // إخفاء الزر العشوائي عند رفع صورة
+              randomAvatarBtn.style.display = 'none'; 
 
           } catch (error) {
               console.error("Image compression failed:", error);
@@ -1007,24 +1080,21 @@
           }
       });
 
-      // دالة لتحديث الصورة
       const updateAvatar = () => {
           const gender = form.querySelector('.gender-option.selected').dataset.gender;
-          const newAvatar = getRandomAvatar(gender); // سيختار من القائمة الجديدة (16 صورة)
+          const newAvatar = getRandomAvatar(gender); 
           avatarPreview.src = newAvatar;
           avatarHiddenInput.value = newAvatar;
-          randomAvatarBtn.style.display = 'block'; // إظهار الزر
+          randomAvatarBtn.style.display = 'block'; 
       };
       
-      // ربط الزر العشوائي
       randomAvatarBtn.addEventListener('click', updateAvatar);
       
-      // ربط أزرار الجنس
       form.querySelectorAll('.gender-option').forEach(option => {
           option.addEventListener('click', () => {
               form.querySelectorAll('.gender-option').forEach(opt => opt.classList.remove('selected'));
               option.classList.add('selected');
-              updateAvatar(); // تحديث الصورة عند تغيير الجنس
+              updateAvatar(); 
           });
       });
     }
@@ -1057,7 +1127,10 @@
             showToast("تم حفظ التعديلات بنجاح!");
             openPage('profile'); 
         } else {
-            data.badge = null; data.settings = defaultSettings; data.createdAt = Timestamp.now();
+            data.badge = null; 
+            data.settings = defaultSettings; 
+            data.createdAt = Timestamp.now();
+            data.isMuted = false; 
             await setDoc(userRef, data);
             await initializeAppState(user);
         }
@@ -1094,7 +1167,6 @@
         const updateSettings = async (newSetting) => {
             const updatedSettings = { ...defaultSettings, ...currentUserProfile.settings, ...newSetting };
             try { 
-                // --- إصلاح 4: ضمان تطبيق الإعدادات محلياً فوراً ---
                 currentUserProfile.settings = updatedSettings;
                 applyCombinedSettings(); 
                 await updateDoc(doc(usersCollection, currentUserProfile.id), { settings: updatedSettings }); 
@@ -1102,7 +1174,6 @@
             catch (error) { console.error("Failed to save settings:", error); }
         };
         if (currentUserProfile.badge === 'owner') {
-            // --- إصلاح 2 & 3: تعديل زر "تطبيق على الجميع" ---
             page.querySelector('#applyToAllBtn').addEventListener('click', async () => { 
                 showLoading(true); 
                 try { 
@@ -1167,7 +1238,6 @@
             }
         });
 
-        // --- إصلاح 4: تفعيل جميع أزرار الإعدادات ---
         page.querySelector('#darkModeToggle').addEventListener('change', (e) => updateSettings({ darkMode: e.target.checked }));
         page.querySelector('#sentBubbleColor').addEventListener('input', (e) => updateSettings({ sentBubbleBg: e.target.value }));
         page.querySelector('#recvBubbleColor').addEventListener('input', (e) => updateSettings({ recvBubbleBg: e.target.value }));
@@ -1230,6 +1300,12 @@
 
     async function sendMessage(event) {
         event.preventDefault();
+
+        if (currentUserProfile.isMuted) {
+            showToast("لا يمكنك الإرسال، لقد تم تقييد حسابك.");
+            return;
+        }
+
         const msgInput = document.getElementById('msgInput');
         const text = msgInput.value.trim();
         if (text && currentUserProfile) {
@@ -1258,18 +1334,28 @@
         row.className = `message-row ${isSent ? 'sent' : 'recv'}`;
         row.dataset.msgId = msgData.id;
         const time = createdAtDate.toLocaleTimeString('ar-EG', { hour: 'numeric', minute: '2-digit' });
+        
         let badgeHTML = '';
         if (sender.badge === 'owner') badgeHTML = `👑`;
         else if (sender.badge === 'moderator') badgeHTML = `🛡️`;
-        let deleteBtnHTML = '';
-        const canDelete = currentUserProfile.badge === 'owner' || currentUserProfile.badge === 'moderator';
-        if (canDelete) {
-            deleteBtnHTML = `<button class="delete-msg-btn" title="حذف الرسالة">🗑️</button>`;
+        
+        const muteIcon = sender.isMuted ? ' 🔇' : '';
+        
+        row.innerHTML = `<img src="${sender.avatar}" alt="${sender.name}" class="chat-avatar"><div class="bubble ${isSent ? 'sent' : 'recv'}"><div class="bubble-content">${!isSent ? `<div class="bubble-sender">${badgeHTML} ${sender.name}${muteIcon}</div>` : ''}<span>${msgData.text}</span><div class="timestamp">${time}</div></div></div>`;
+        
+        const bubble = row.querySelector('.bubble');
+        const canDeleteAsAdmin = currentUserProfile.badge === 'owner' || currentUserProfile.badge === 'moderator';
+        const isOwnMessage = msgData.senderId === currentUserProfile.id;
+
+        if (canDeleteAsAdmin || isOwnMessage) {
+            bubble.style.cursor = 'pointer';
+            bubble.title = 'اضغط لحذف الرسالة';
+            bubble.addEventListener('click', (e) => {
+                e.stopPropagation(); 
+                handleDeleteMessage(msgData.id); 
+            });
         }
-        row.innerHTML = `<img src="${sender.avatar}" alt="${sender.name}" class="chat-avatar"><div class="bubble ${isSent ? 'sent' : 'recv'}">${deleteBtnHTML}<div class="bubble-content">${!isSent ? `<div class="bubble-sender">${badgeHTML} ${sender.name}</div>` : ''}<span>${msgData.text}</span><div class="timestamp">${time}</div></div></div>`;
-        if(canDelete) {
-            row.querySelector('.delete-msg-btn').onclick = () => handleDeleteMessage(msgData.id);
-        }
+        
         return row;
     }
     
