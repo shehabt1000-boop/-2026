@@ -1186,56 +1186,6 @@
                 const userJobPosts = await fetchUserJobPosts(uid);
                 // ==============================
 
-                // === بناء محتوى الطلبات ===
-                const requestsHtml = userRequests.length > 0 ? userRequests.map(req => {
-                    const dateString = req.createdAt && req.createdAt.toDate ? new Date(req.createdAt.toDate()).toLocaleDateString('ar-EG') : 'تاريخ غير محدد';
-                    const deleteButton = uid === userId ? `
-                        <button data-action="deleteRequest" data-requestid="${req.id}"
-                                class="text-red-500 hover:text-red-700 transition-colors p-1">
-                            ${ICONS.trash}
-                        </button>
-                    ` : '';
-                    return `
-                        <div class="border-b border-gray-100 pb-3">
-                            <div class="flex justify-between items-center">
-                                <span class="font-semibold text-gray-800 text-sm">${req.title}</span>
-                                <div class="flex items-center space-x-2 space-x-reverse">
-                                    <span class="text-xs text-gray-500">${dateString}</span>
-                                    ${deleteButton}
-                                </div>
-                            </div>
-                            <p class="text-xs text-indigo-600 mt-0.5">${req.category}</p>
-                            <p class="text-sm text-gray-600 mt-1 truncate-1-line">${req.description}</p>
-                        </div>
-                    `;
-                }).join('') : '<p class="text-gray-500 text-sm">لا توجد طلبات خدمة نشطة حالياً.</p>';
-
-                // === بناء محتوى إعلانات الوظائف ===
-                const jobPostsHtml = userJobPosts.length > 0 ? userJobPosts.map(job => {
-                    const dateString = job.createdAt && job.createdAt.toDate ? new Date(job.createdAt.toDate()).toLocaleDateString('ar-EG') : 'تاريخ غير محدد';
-                    const deleteButton = uid === userId ? `
-                        <button data-action="deleteJobPost" data-jobid="${job.id}"
-                                class="text-red-500 hover:text-red-700 transition-colors p-1">
-                            ${ICONS.trash}
-                        </button>
-                    ` : '';
-                    return `
-                        <div class="border-b border-gray-100 pb-3">
-                            <div class="flex justify-between items-center">
-                                <span class="font-semibold text-gray-800 text-sm">${job.title}</span>
-                                <div class="flex items-center space-x-2 space-x-reverse">
-                                    <span class="text-xs text-gray-500">${dateString}</span>
-                                    ${deleteButton}
-                                </div>
-                            </div>
-                            <p class="text-xs text-indigo-600 mt-0.5">${job.category}</p>
-                            <p class="text-sm text-gray-600 mt-1 truncate-1-line">${job.details}</p>
-                        </div>
-                    `;
-                }).join('') : '<p class="text-gray-500 text-sm">لا توجد إعلانات وظائف نشطة حالياً.</p>';
-                // ===================================
-
-
                 const profileContent = document.getElementById('profile-content');
                 profileContent.innerHTML = `
                     <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200 flex flex-col items-center">
@@ -1294,7 +1244,28 @@
                     <div class="bg-white p-4 rounded-lg shadow-md mt-4 border border-gray-200">
                         <h3 class="text-lg font-semibold text-gray-800 mb-3">طلبات الخدمات المنشورة (${userRequests.length})</h3>
                         <div class="space-y-3">
-                            ${requestsHtml}
+                            ${userRequests.length > 0 ? userRequests.map(req => {
+                                const dateString = req.createdAt && req.createdAt.toDate ? new Date(req.createdAt.toDate()).toLocaleDateString('ar-EG') : 'تاريخ غير محدد';
+                                const deleteButton = uid === userId ? `
+                                    <button data-action="deleteRequest" data-requestid="${req.id}"
+                                            class="text-red-500 hover:text-red-700 transition-colors p-1">
+                                        ${ICONS.trash}
+                                    </button>
+                                ` : '';
+                                return `
+                                    <div class="border-b border-gray-100 pb-3">
+                                        <div class="flex justify-between items-center">
+                                            <span class="font-semibold text-gray-800 text-sm">${req.title}</span>
+                                            <div class="flex items-center space-x-2 space-x-reverse">
+                                                <span class="text-xs text-gray-500">${dateString}</span>
+                                                ${deleteButton}
+                                            </div>
+                                        </div>
+                                        <p class="text-xs text-indigo-600 mt-0.5">${req.category}</p>
+                                        <p class="text-sm text-gray-600 mt-1 truncate-1-line">${req.description}</p>
+                                    </div>
+                                `;
+                            }).join('') : '<p class="text-gray-500 text-sm">لا توجد طلبات خدمة نشطة حالياً.</p>'}
                         </div>
                     </div>
 
@@ -1302,7 +1273,28 @@
                     <div class="bg-white p-4 rounded-lg shadow-md mt-4 border border-gray-200">
                         <h3 class="text-lg font-semibold text-gray-800 mb-3">إعلانات الوظائف المنشورة (${userJobPosts.length})</h3>
                         <div class="space-y-3">
-                            ${jobPostsHtml}
+                            ${userJobPosts.length > 0 ? userJobPosts.map(job => {
+                                const dateString = job.createdAt && job.createdAt.toDate ? new Date(job.createdAt.toDate()).toLocaleDateString('ar-EG') : 'تاريخ غير محدد';
+                                const deleteButton = uid === userId ? `
+                                    <button data-action="deleteJobPost" data-jobid="${job.id}"
+                                            class="text-red-500 hover:text-red-700 transition-colors p-1">
+                                        ${ICONS.trash}
+                                    </button>
+                                ` : '';
+                                return `
+                                    <div class="border-b border-gray-100 pb-3">
+                                        <div class="flex justify-between items-center">
+                                            <span class="font-semibold text-gray-800 text-sm">${job.title}</span>
+                                            <div class="flex items-center space-x-2 space-x-reverse">
+                                                <span class="text-xs text-gray-500">${dateString}</span>
+                                                ${deleteButton}
+                                            </div>
+                                        </div>
+                                        <p class="text-xs text-indigo-600 mt-0.5">${job.category}</p>
+                                        <p class="text-sm text-gray-600 mt-1 truncate-1-line">${job.details}</p>
+                                    </div>
+                                `;
+                            }).join('') : '<p class="text-gray-500 text-sm">لا توجد إعلانات وظائف نشطة حالياً.</p>'}
                         </div>
                     </div>
 
@@ -1379,12 +1371,7 @@
 
             } catch (error) {
                 console.error("Error fetching profile: ", error);
-                document.getElementById('profile-content').innerHTML = `
-                    <div class="bg-white p-6 rounded-lg shadow-sm">
-                        <p class="text-red-500 text-center">حدث خطأ أثناء تحميل الملف الشخصي أو بياناته. قد تكون المشكلة في الاتصال أو عدم وجود بيانات للمستخدم.</p>
-                        <p class="text-sm text-gray-500 text-center mt-2">تفاصيل الخطأ: ${error.message || 'غير معروف'}</p>
-                    </div>
-                `;
+                document.getElementById('profile-content').innerHTML = '<p class="text-red-500">حدث خطأ أثناء تحميل الملف الشخصي.</p>';
             }
         }
 
