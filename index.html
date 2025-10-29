@@ -1,9 +1,12 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>مستقبل الشرقية</title>
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#1e40af"> <!-- لون السمة الرئيسي للتطبيق -->
+    <link rel="manifest" href="/manifest.json"> <!-- ربط ملف البيان PWA -->
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Font (Inter) -->
@@ -989,25 +992,8 @@
 
 
                 if (requests.length === 0) {
-                     // 2. إذا لم يجد طلبات لوظيفته، يعرض كل الطلبات المتاحة (مع orderBy)
-                    const allRequestsQuery = query(requestsColRef, orderBy('createdAt', 'desc'));
-                    onSnapshot(allRequestsQuery, async (allSnapshot) => {
-                        let allRequests = allSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-
-                        // === تطبيق الحذف التلقائي على الكل ===
-                        const validAllRequests = [];
-                        for (const req of allRequests) {
-                            const isDeleted = await attemptAutoDelete(req.id, req, 'serviceRequests');
-                            if (!isDeleted) {
-                                validAllRequests.push(req);
-                            }
-                        }
-                        allRequests = validAllRequests;
-
-
-                        requestsList.innerHTML = generateRequestList(allRequests, `لا توجد طلبات لوظيفة ${userProfile.jobTitle || 'غير محددة'} حالياً. هذه كل الطلبات المتاحة:`);
-                    });
+                    // 2. إذا لم يجد طلبات لوظيفته، يعرض رسالة "لا توجد طلبات خدمة متاحة حالياً"
+                    requestsList.innerHTML = '<p class="text-gray-500 text-center p-6 bg-white rounded-lg shadow-sm">لا توجد طلبات خدمة متاحة حالياً لوظيفة ' + (userProfile.jobTitle || 'غير محددة') + '.</p>';
                 } else {
                     requestsList.innerHTML = generateRequestList(requests);
                 }
@@ -2844,7 +2830,7 @@
 
 
 
-                    const totalStars = newRatings.reduce((acc, r) => acc + r.stars, 0);
+                    const totalStars = newRatings.reduce((acc, r => acc + r.stars, 0);
                     const newAvgRating = totalStars / newRatings.length;
 
 
@@ -3109,6 +3095,20 @@
                 }
             })();
         };
+        
+        // 14. PWA Service Worker Registration
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // يجب أن يكون ملف service-worker.js موجوداً في المجلد الرئيسي
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
 
 
 
