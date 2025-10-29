@@ -2830,7 +2830,8 @@
 
 
 
-                    const totalStars = newRatings.reduce((acc, r => acc + r.stars, 0);
+                    // ⚠️ تم تصحيح الخطأ هنا: إضافة القوس الناقص بعد r
+                    const totalStars = newRatings.reduce((acc, r) => acc + r.stars, 0);
                     const newAvgRating = totalStars / newRatings.length;
 
 
