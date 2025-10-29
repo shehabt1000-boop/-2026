@@ -133,7 +133,7 @@
             runTransaction,
             getDocs,
             orderBy,
-            deleteDoc // تم استيراد دالة الحذف
+            deleteDoc 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
 
@@ -433,7 +433,7 @@
             });
         }
         
-        // === دالة مساعدة للحذف التلقائي (الخاصية رقم 2) ===
+        // === دالة مساعدة للحذف التلقائي (48 ساعة) ===
         async function attemptAutoDelete(docId, docData, collectionName) {
             if (!docData.createdAt || !docData.createdAt.toDate) return;
 
@@ -533,7 +533,7 @@
                 case 'jobPosting':
                     renderJobPostingPage();
                     break;
-                case 'myPostings': // === إضافة الصفحة الجديدة ===
+                case 'myPostings': 
                     renderMyPostingsPage();
                     break;
                 default:
@@ -796,7 +796,7 @@
         }
 
 
-        // === إصلاح 1: الصفحة الرئيسية لمقدم الخدمة (تم تعديل منطق عرض الطلبات) ===
+        // === دالة الصفحة الرئيسية لمقدم الخدمة (تم تعديل الاستعلام والفرز) ===
         async function renderProviderHome() {
             const categoriesHtml = SERVICES_LIST.map(cat => `
                 <div data-action="navigateTo" data-page="category" data-category="${cat.name.toLowerCase()}" 
@@ -841,15 +841,15 @@
             const requestsColRef = collection(db, `artifacts/${appId}/public/data/serviceRequests`);
 
 
-            // 1. بحث عن الطلبات التي تتطابق مع وظيفة مقدم الخدمة
-            const jobSpecificQuery = query(requestsColRef, where('category', '==', userProfile.jobTitle), orderBy('createdAt', 'desc'));
+            // 1. بحث عن الطلبات التي تتطابق مع وظيفة مقدم الخدمة (بدون orderBy)
+            const jobSpecificQuery = query(requestsColRef, where('category', '==', userProfile.jobTitle));
 
 
             currentUnsubscribe = onSnapshot(jobSpecificQuery, async (snapshot) => {
                 const requestsList = document.getElementById('requests-list');
                 let requests = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 
-                // === تطبيق الحذف التلقائي (الخاصية رقم 2) ===
+                // === تطبيق الحذف التلقائي ===
                 const validRequests = [];
                 for (const req of requests) {
                     const isDeleted = await attemptAutoDelete(req.id, req, 'serviceRequests');
@@ -858,10 +858,17 @@
                     }
                 }
                 requests = validRequests;
+                
+                // === الفرز اليدوي (Client-Side Sorting) ===
+                requests.sort((a, b) => {
+                    const timeA = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+                    const timeB = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+                    return timeB - timeA;
+                });
 
 
                 if (requests.length === 0) {
-                     // 2. إذا لم يجد طلبات لوظيفته، يعرض كل الطلبات المتاحة (كخيار بديل)
+                     // 2. إذا لم يجد طلبات لوظيفته، يعرض كل الطلبات المتاحة (مع orderBy)
                     const allRequestsQuery = query(requestsColRef, orderBy('createdAt', 'desc'));
                     onSnapshot(allRequestsQuery, async (allSnapshot) => {
                         let allRequests = allSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -1330,7 +1337,7 @@
             }
         }
         
-        // === دالة عرض إعلانات وطلبات المستخدم (الخاصية رقم 1) ===
+        // === دالة عرض إعلانات وطلبات المستخدم (تم تعديل الاستعلام والفرز) ===
         async function renderMyPostingsPage() {
             appContainer.innerHTML = `
                 <div class="pb-24">
@@ -1355,9 +1362,10 @@
             showLoading('جاري تحميل بياناتك...');
 
             try {
-                // 1. جلب طلبات الخدمات (Service Requests)
+                // 1. جلب طلبات الخدمات (Service Requests) - تم حذف orderBy
                 const requestsColRef = collection(db, `artifacts/${appId}/public/data/serviceRequests`);
-                const requestsQuery = query(requestsColRef, where('requesterId', '==', userId), orderBy('createdAt', 'desc'));
+                // الاستعلام الجديد: where فقط
+                const requestsQuery = query(requestsColRef, where('requesterId', '==', userId)); 
                 const requestsSnapshot = await getDocs(requestsQuery);
                 
                 let requests = requestsSnapshot.docs.map(doc => ({ id: doc.id, type: 'request', ...doc.data() }));
@@ -1373,9 +1381,10 @@
                 requests = validRequests;
 
 
-                // 2. جلب إعلانات الوظائف (Job Postings)
+                // 2. جلب إعلانات الوظائف (Job Postings) - تم حذف orderBy
                 const jobsColRef = collection(db, `artifacts/${appId}/public/data/jobPostings`);
-                const jobsQuery = query(jobsColRef, where('posterId', '==', userId), orderBy('createdAt', 'desc'));
+                // الاستعلام الجديد: where فقط
+                const jobsQuery = query(jobsColRef, where('posterId', '==', userId));
                 const jobsSnapshot = await getDocs(jobsQuery);
                 
                 let jobs = jobsSnapshot.docs.map(doc => ({ id: doc.id, type: 'job', ...doc.data() }));
@@ -1390,8 +1399,12 @@
                 }
                 jobs = validJobs;
 
-                // 3. دمج وترتيب الكل
-                const allPostings = [...requests, ...jobs].sort((a, b) => b.createdAt.toMillis() - a.createdAt.toMillis());
+                // 3. دمج وترتيب الكل يدوياً في الكود (Client-Side Sorting)
+                const allPostings = [...requests, ...jobs].sort((a, b) => {
+                    const timeA = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis() : 0;
+                    const timeB = b.createdAt && b.createdAt.toMillis ? b.createdAt.toMillis() : 0;
+                    return timeB - timeA; // فرز تنازلي (الأحدث أولاً)
+                });
 
                 hideLoading();
 
@@ -1731,7 +1744,7 @@
         }
 
 
-        // === إصلاح 3: صفحة نشر إعلان وظيفة ===
+        // === صفحة نشر إعلان وظيفة ===
         function renderJobPostingPage() {
             const serviceOptions = SERVICES_LIST.map(service => 
                 `<option value="${service.name}">${service.name}</option>`
@@ -1781,7 +1794,7 @@
         }
 
 
-        // === إصلاح 3: صفحة عرض إعلانات الوظائف ===
+        // === صفحة عرض إعلانات الوظائف ===
         async function renderJobListingsPage() {
             appContainer.innerHTML = `
                 <div class="pb-24">
@@ -2267,7 +2280,7 @@
         }
 
 
-        // === إصلاح 3: إرسال إعلان وظيفة ===
+        // === إرسال إعلان وظيفة ===
         async function handleSubmitJobPost(e) {
             e.preventDefault();
             showLoading('جاري نشر إعلان الوظيفة...');
@@ -2315,7 +2328,7 @@
             }
         }
         
-        // === دالة حذف إعلان/طلب (الخاصية رقم 1) ===
+        // === دالة حذف إعلان/طلب ===
         async function handleDeletePosting(type, id) {
              const collectionName = type === 'request' ? 'serviceRequests' : 'jobPostings';
              const confirmDelete = await new Promise(resolve => {
@@ -2382,7 +2395,7 @@
         }
 
 
-        // === توحيد دالة إرسال التقييم للمقدم والعميل (إصلاح 3) ===
+        // === توحيد دالة إرسال التقييم للمقدم والعميل ===
         async function handleSubmitRating(targetId, targetRole) {
             const stars = parseInt(document.getElementById('rating-value').value);
             const comment = document.getElementById('rating-comment').value.trim();
@@ -2520,7 +2533,7 @@
                     e.preventDefault();
                     await handleSubmitJobPost(e);
                     break;
-                case 'deletePosting': // === إضافة معالج الحذف (الخاصية رقم 1) ===
+                case 'deletePosting': 
                     await handleDeletePosting(type, id);
                     break;
                 case 'openRatingModal': // تقييم مقدم الخدمة
