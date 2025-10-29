@@ -1,0 +1,22 @@
+{
+  "name": "مستقبل الشرقية",
+  "short_name": "الشرقية",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1e40af",
+  "description": "تطبيق خدمات محافظة الشرقية",
+  "lang": "ar",
+  "icons": [
+    {
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAMAAAADACAIAAAD1f0BcAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAADlJREFUeNrs0gEJAAAIwL7/9FzBLyAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgP8HAAEGAI/AAQwAAAAASUVORK5CYII=",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAgAAAAIACAIAAAD7E2btAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAADlJREFUeNrs0gEJAAAIwL7/9FzBLyAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAgP8HAAEGAI/AAQwAAAAASUVORK5CYII=",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
