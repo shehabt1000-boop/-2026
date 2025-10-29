@@ -1,8 +1,0 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "io.github.shehabt1000_boop.twa",
-        "sha256_cert_fingerprints": ["9F:8D:E8:3A:5D:39:DB:17:06:31:25:D5:67:4B:34:AC:0F:3E:42:03:3F:F8:B6:15:D3:C1:DC:A0:5A:BC:4F:52"]
-      }
-    }]
