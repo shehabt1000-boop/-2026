@@ -2,12 +2,13 @@ const CACHE_NAME = 'sharqia-app-v1';
 // قائمة الملفات الأساسية التي يجب تخزينها مؤقتًا
 const urlsToCache = [
   '/', // الصفحة الرئيسية (index.html)
-  '/site.webmanifest' // يجب استخدام اسم ملف البيان الصحيح لديك
+  '/manifest.json' // ملف البيان
   // أضف هنا أي ملفات CSS أو JS أخرى إذا كانت منفصلة
-  // مثال: '/style.css', '/app.js'
+  // مثال: '/style.css'
 ];
 
 // 1. حدث التثبيت (Install)
+// يتم تشغيله عند تثبيت الـ Service Worker لأول مرة
 self.addEventListener('install', event => {
   console.log('Service Worker: Installing...');
   event.waitUntil(
@@ -21,6 +22,7 @@ self.addEventListener('install', event => {
 });
 
 // 2. حدث التفعيل (Activate)
+// يتم تشغيله لتنظيف الكاش القديم
 self.addEventListener('activate', event => {
   console.log('Service Worker: Activating...');
   event.waitUntil(
@@ -39,6 +41,7 @@ self.addEventListener('activate', event => {
 });
 
 // 3. حدث الجلب (Fetch)
+// يقرر ما إذا كان سيتم جلب الملف من الكاش أو من الشبكة
 self.addEventListener('fetch', event => {
   // لا تقم بتخزين طلبات Firebase مؤقتًا
   if (event.request.url.includes('firebase') || event.request.url.includes('gstatic')) {
@@ -66,7 +69,6 @@ self.addEventListener('fetch', event => {
       .catch(error => {
         console.error('Service Worker: Fetch error:', error);
         // يمكنك إرجاع صفحة "أنت غير متصل" هنا
-        // مثال: return caches.match('/offline.html');
       })
   );
 });
