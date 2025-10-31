@@ -1,12 +1,8 @@
-[
-  {
-    "relation": ["delegate_permission/common.handle_all_urls"],
-    "target": {
-      "namespace": "android_app",
-      "package_name": "app.netlify.services_zagazeg2026.twa",
-      "sha256_cert_fingerprints": [
-        "14:2E:5A:8D:96:AB:17:90:44:88:F9:87:9A:5B:8B:EB:41:66:90:88:AD:02:BA:17:77:F3:21:98:2F:6F:5D:DF"
-      ]
-    }
-  }
-]
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "com.future.sharqia",
+        "sha256_cert_fingerprints": ["7E:FA:03:31:16:25:F3:D0:45:CC:38:37:A4:23:50:2C:04:CE:90:C5:D4:91:6A:5F:BD:38:6E:34:4E:F3:86:A7"]
+      }
+    }]
