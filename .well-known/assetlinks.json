@@ -3,7 +3,7 @@
     "relation": ["delegate_permission/common.handle_all_urls"],
     "target": {
       "namespace": "android_app",
-      "package_name": "com.future.sharqia",
+      "package_name": "app.netlify.services_zagazeg2026.twa",
       "sha256_cert_fingerprints": [
         "14:2E:5A:8D:96:AB:17:90:44:88:F9:87:9A:5B:8B:EB:41:66:90:88:AD:02:BA:17:77:F3:21:98:2F:6F:5D:DF"
       ]
