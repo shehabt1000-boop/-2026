@@ -3,26 +3,46 @@
   "short_name": "الشرقية",
   "description": "تطبيق خدمات محافظة الشرقية.",
   "start_url": ".",
-  "id": "/",  // <-- 1. لتحديد الهوية الدائمة
+  "id": "/",  
   "display": "standalone",
-  "background_color": "#f9fafb", // <-- 2. تم تغيير لون الخلفية من الأبيض ليتوافق مع التقرير
+  "background_color": "#f9fafb", 
   "theme_color": "#1e40af",
-  "orientation": "portrait-primary", // <-- 3. لتحديد الاتجاه الطولي (مطلوب في التقرير)
-  "categories": ["utilities", "government", "business"], // <-- 4. لتحديد الفئات
-  "prefer_related_applications": false, // <-- 5. لتفضيل PWA على التطبيقات الأصلية
+  "orientation": "portrait-primary", 
+  "categories": ["utilities", "government", "business"], 
+  "prefer_related_applications": false, 
+  "screenshots": [
+    {
+      "src": "/images/screenshots/home.png", // تأكد من مسار الصورة وأبعادها
+      "sizes": "1080x1920", 
+      "type": "image/png"
+    },
+    {
+      "src": "/images/screenshots/directory.png",
+      "sizes": "1080x1920",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/screenshots/jobs.png",
+      "sizes": "1080x1920",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/screenshots/profile.png",
+      "sizes": "1080x1920",
+      "type": "image/png"
+    }
+  ],
   "icons": [
-    // الأيقونات الموجودة لديك حالياً، يجب التأكد من مساراتها الصحيحة
     {
       "src": "android-chrome-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any maskable" // <-- 6. تم إضافة maskable icon لدعم الأيقونات التكيفية
+      "purpose": "any maskable" 
     },
     {
       "src": "android-chrome-512x512.png",
       "sizes": "512x512",
       "type": "image/png"
     }
-    // يفضل إضافة أحجام أخرى مثل 256x256 و 384x384 لضمان أفضل وضوح
   ]
 }
