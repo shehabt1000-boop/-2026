@@ -17,5 +17,8 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "orientation": "any",
+  "id": ".",
+  "categories": ["services", "utilities", "government", "business"]
 }
