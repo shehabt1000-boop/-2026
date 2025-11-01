@@ -2,7 +2,7 @@
       "relation": ["delegate_permission/common.handle_all_urls"],
       "target": {
         "namespace": "android_app",
-        "package_name": "com.future.sharqia",
-        "sha256_cert_fingerprints": ["7E:FA:03:31:16:25:F3:D0:45:CC:38:37:A4:23:50:2C:04:CE:90:C5:D4:91:6A:5F:BD:38:6E:34:4E:F3:86:A7"]
+        "package_name": "io.github.shehabt1000_boop.twa",
+        "sha256_cert_fingerprints": ["EB:D2:E9:9D:FA:BC:F1:89:D8:6E:C6:AB:70:5C:5C:30:49:0A:53:B4:16:16:62:C9:72:38:DD:2F:45:66:C2:FD"]
       }
     }]
